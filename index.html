@@ -1,0 +1,1375 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>抽卡特訓班 (四階段完整版)</title>
+
+    <script>
+        window.MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']]
+            }
+        };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+    <style>
+        body {
+            font-family: '微軟正黑體', sans-serif; 
+            background-color: #1a1a2e; 
+            color: #ecf0f1; display: flex; justify-content: center;
+            align-items: center; height: 100vh; margin: 0; overflow: hidden;
+            transition: background-color 0.5s ease; 
+        }
+        body.rescue-mode { background-color: #4a1010; }
+
+        .container {
+            background-color: #2c3e50; width: 90%; max-width: 650px;
+            padding: 30px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+            text-align: center; max-height: 90vh; overflow-y: auto; position: relative;
+        }
+        h1 { color: #f1c40f; margin-bottom: 5px; }
+        .subtitle { color: #95a5a6; margin-bottom: 20px; font-size: 14px; }
+        
+        #student-setup { display: block; }
+        #game-area { display: none; }
+        #result-area { display: none; }
+
+        .warning-box {
+            background-color: #c0392b; color: white; padding: 12px; 
+            border-radius: 8px; margin-bottom: 20px; font-weight: bold;
+            font-size: 15px; line-height: 1.4; border: 2px solid #e74c3c;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        }
+
+        input[type="text"] {
+            width: 80%; padding: 15px; font-size: 18px; border-radius: 8px; 
+            border: 2px solid #3498db; background: #1a1a2e; color: white; 
+            text-align: center; margin-bottom: 20px;
+        }
+
+        /* 卡包選擇器 UI */
+        .pack-selector-container {
+            margin: 20px 0; padding: 15px; background: #16213e; border-radius: 10px;
+        }
+        .pack-selector-title { font-size: 16px; color: #f39c12; margin-bottom: 10px; font-weight: bold; }
+        .pack-grid {
+            display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;
+        }
+        .pack-option {
+            background: #2c3e50; border: 2px solid #34495e; border-radius: 8px;
+            padding: 10px 15px; cursor: pointer; transition: 0.3s;
+            font-size: 16px; font-weight: bold; color: #cbd5e1; flex: 1; min-width: 120px;
+        }
+        .pack-option:hover { background: #34495e; }
+        .pack-option.active {
+            background: #2980b9; border-color: #3498db; color: #fff;
+            box-shadow: 0 0 15px rgba(52, 152, 219, 0.6); transform: scale(1.05);
+        }
+
+        .status-bar {
+            display: flex; justify-content: space-between; align-items: center;
+            background: #16213e; padding: 10px 20px; border-radius: 10px; margin-bottom: 20px;
+        }
+        .hp-bar { font-size: 18px; color: #e74c3c; text-align: left; display: flex; align-items: center; gap: 10px;}
+        .streak-badge { background: #d35400; color: white; padding: 3px 8px; border-radius: 5px; font-size: 14px; font-weight: bold; }
+        .inventory { font-size: 14px; color: #f1c40f; text-align: right; font-weight: bold;}
+        
+        .tag {
+            display: inline-block; background: #e74c3c; color: white;
+            padding: 5px 10px; border-radius: 5px; font-size: 14px; margin-bottom: 15px; font-weight: bold;
+        }
+        .question-text { font-size: 22px; line-height: 1.5; margin-bottom: 30px; }
+
+        .btn {
+            display: block; width: 100%; padding: 15px; margin-bottom: 15px;
+            font-size: 18px; cursor: pointer; border: none; border-radius: 8px;
+            background-color: #34495e; color: white; font-weight: bold; transition: 0.2s; box-shadow: 0 4px #2c3e50;
+        }
+        .btn:hover { background-color: #3498db; }
+        .btn:active { transform: translateY(4px); box-shadow: none; }
+        .btn-start { background-color: #27ae60; box-shadow: 0 4px #1e8449; margin-top: 10px; }
+        .btn-collection { background-color: #8e44ad; box-shadow: 0 4px #732d91; }
+
+        #log-report { text-align: left; background: #1a1a2e; padding: 15px; border-radius: 8px; color: #f39c12; font-size: 16px; margin-bottom: 20px; max-height: 200px; overflow-y: auto;}
+        
+        #correct-splash {
+            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            font-size: 80px; font-weight: bold; color: #2ecc71; text-shadow: 0 0 30px rgba(46, 204, 113, 0.8);
+            opacity: 0; pointer-events: none; transition: 0.3s; z-index: 150;
+        }
+        #correct-splash.show { opacity: 1; transform: translate(-50%, -60%) scale(1.2); }
+
+        #gacha-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.9); display: none; justify-content: center;
+            align-items: center; flex-direction: column; z-index: 200;
+        }
+        .gacha-card {
+            width: 250px; height: 350px; border-radius: 15px; display: flex; flex-direction: column; justify-content: center; align-items: center;
+            font-size: 24px; font-weight: bold; color: white; text-align: center; padding: 20px; box-sizing: border-box; transform: scale(0);
+            transition: transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275); text-shadow: 2px 2px 4px rgba(0,0,0,0.5); position: relative; overflow: hidden;
+        }
+        .card-SP { background: linear-gradient(135deg, #ff00cc, #3333ff); box-shadow: 0 0 50px #ff00cc; border: 3px solid #fff; }
+        .card-UR { background: linear-gradient(135deg, #FFD700, #FF8C00); box-shadow: 0 0 40px #FFD700; border: 3px solid #fff; }
+        .card-SSR { background: linear-gradient(135deg, #ff007f, #7f00ff); box-shadow: 0 0 30px #ff007f; border: 2px solid #fff; }
+        .card-SR { background: linear-gradient(135deg, #00d2ff, #3a7bd5); box-shadow: 0 0 15px #00d2ff; }
+        .card-R { background: linear-gradient(135deg, #7f8c8d, #2c3e50); }
+        .card-N { background: linear-gradient(135deg, #bdc3c7, #7f8c8d); color: #2c3e50; border: 1px solid #95a5a6; }
+        
+        .gacha-title { color: white; font-size: 24px; margin-bottom: 20px; letter-spacing: 2px;}
+        .gacha-btn { margin-top: 30px; padding: 15px 40px; font-size: 20px; font-weight: bold; background: #e74c3c; color: white; border: none; border-radius: 8px; cursor: pointer; box-shadow: 0 4px #c0392b; transition: 0.2s;}
+        .gacha-btn-collect { background: #3498db; box-shadow: 0 4px #2980b9; }
+
+        #collection-modal {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95);
+            display: none; justify-content: flex-start; align-items: center; flex-direction: column; z-index: 300; padding-top: 30px; overflow-y: auto;
+        }
+        .collection-header { color: #f1c40f; font-size: 28px; margin-bottom: 10px; text-shadow: 0 0 10px #f39c12; }
+        
+        .pack-section-title { width: 90%; max-width: 800px; text-align: left; font-size: 20px; color: #34db98; margin: 20px 0 10px 0; border-bottom: 2px solid #2c3e50; padding-bottom: 5px; }
+        
+        .card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 15px; width: 90%; max-width: 800px; padding-bottom: 20px;}
+        .mini-card { background: #2c3e50; border-radius: 10px; padding: 10px; text-align: center; border: 2px solid #34495e; position: relative; }
+        .mini-card img { width: 100%; border-radius: 5px; margin-bottom: 10px; aspect-ratio: 1/1; object-fit: cover; }
+        .mini-card .name { font-size: 14px; font-weight: bold; color: white; line-height: 1.2;}
+        .mini-card .count { position: absolute; top: -10px; right: -10px; background: #e74c3c; color: white; border-radius: 50%; width: 30px; height: 30px; display: flex; justify-content: center; align-items: center; font-weight: bold; font-size: 14px; border: 2px solid #fff; z-index: 10; }
+        
+        .mini-card.unowned { border-color: #555; background: #1a252f; }
+        .mini-card.unowned img { filter: grayscale(100%) brightness(0.4); opacity: 0.6; }
+        .mini-card.unowned .name { color: #7f8c8d; }
+        
+        .btn-synth { margin-top: 8px; padding: 6px 0; font-size: 13px; background: #e67e22; color: white; border: none; border-radius: 5px; cursor: pointer; width: 100%; font-weight: bold; animation: pulse 1.5s infinite; }
+        .btn-synth:hover { background: #d35400; }
+        .btn-synth-sr { background: #9b59b6; box-shadow: 0 0 10px #9b59b6; animation: pulse-sr 1.2s infinite; }
+        .btn-synth-sr:hover { background: #8e44ad; }
+        
+        @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(230, 126, 34, 0.7); } 70% { box-shadow: 0 0 0 8px rgba(230, 126, 34, 0); } 100% { box-shadow: 0 0 0 0 rgba(230, 126, 34, 0); } }
+        @keyframes pulse-sr { 0% { box-shadow: 0 0 0 0 rgba(155, 89, 182, 0.8); } 70% { box-shadow: 0 0 0 10px rgba(155, 89, 182, 0); } 100% { box-shadow: 0 0 0 0 rgba(155, 89, 182, 0); } }
+        
+        .close-btn { margin-top: 20px; padding: 10px 30px; font-size: 18px; background: #95a5a6; color: white; border: none; border-radius: 8px; cursor: pointer; margin-bottom: 50px;}
+    </style>
+</head>
+<body>
+
+    <div id="correct-splash">⭕ 正確！</div>
+
+    <div id="gacha-overlay">
+        <div class="gacha-title" id="gacha-title">✨ 連擊達成！獲得抽卡機會！ ✨</div>
+        <button class="gacha-btn" id="pre-draw-btn" onclick="executeDraw()">👉 點擊抽卡 👈</button>
+        <div class="gacha-card" id="revealed-card" style="display:none;">
+            <img id="card-image" src="" style="width: 100%; max-height: 220px; object-fit: cover; border-radius: 10px; margin-bottom: 15px; display: none;">
+            <div id="card-name" style="font-size: 20px; line-height: 1.2;">卡片名稱</div>
+        </div>
+        <button class="gacha-btn gacha-btn-collect" id="post-draw-btn" onclick="closeGacha()" style="display:none;">收下神卡並繼續</button>
+    </div>
+
+    <div id="collection-modal">
+        <div class="collection-header" id="collection-title">🏆 專屬集卡冊</div>
+        <div id="collection-content" style="width: 100%; display: flex; flex-direction: column; align-items: center;">
+        </div>
+        <button class="close-btn" onclick="closeCollection()">返回首頁</button>
+    </div>
+
+    <div class="container">
+        <div id="student-setup">
+            <h1>🎒 數位邏輯設計大挑戰：抽卡特訓班！</h1>
+            <div class="subtitle">連續答對 2 題即可抽卡！(滿5張特定卡可覺醒神卡)</div>
+            
+            <div class="warning-box">
+                ⚠️ 注意：請先輸入姓名並點擊【☁️ 1. 載入雲端圖鑑存檔】，再開始挑戰！否則辛苦抽到的卡片紀錄會被洗掉喔！
+            </div>
+
+            <input type="text" id="student-name" placeholder="請輸入 班級+座號+姓名">
+            
+            <div class="pack-selector-container">
+                <div class="pack-selector-title">👇 請選擇本次測驗的專屬抽卡包 👇</div>
+                <div class="pack-grid" id="pack-selector"></div>
+            </div>
+            
+            <button class="btn" id="btn-sync" style="background-color: #2980b9; box-shadow: 0 4px #1c5980;" onclick="syncCloudData()">☁️ 1. 載入雲端圖鑑存檔</button>
+            <button class="btn btn-start" onclick="startGame()">▶️ 2. 開始大挑戰</button>
+            <button class="btn btn-collection" onclick="openCollection()">📖 查看我的圖鑑進度</button>
+        </div>
+
+        <div id="game-area">
+            <div class="status-bar">
+                <div class="hp-bar" id="hp-display">
+                    <span id="hearts">❤️❤️❤️</span>
+                    <span class="streak-badge" id="streak-display">🔥 連擊: 0 / 2</span>
+                </div>
+                <div class="inventory" id="inventory-display">🎒 本局卡簿: 空</div>
+            </div>
+            <div class="tag" id="q-tag">標籤</div>
+            <div class="question-text" id="q-text">題目載入中...</div>
+            <div id="options-area"></div>
+        </div>
+
+        <div id="result-area">
+            <h1>測驗完成！🎉</h1>
+            <p>戰利品已自動存入集卡冊，診斷報告已傳送給老師。</p>
+            <div id="log-report"></div>
+            <button class="btn btn-collection" style="margin-top:20px;" onclick="location.reload()">返回首頁查看集卡冊</button>
+        </div>
+    </div>
+
+    <script>
+        // === 音效引擎 ===
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        let audioCtx;
+        function initAudio() { 
+            if (!audioCtx) audioCtx = new AudioContext(); 
+            if (audioCtx.state === 'suspended') audioCtx.resume(); 
+        }
+        function playSound(type) {
+            initAudio();
+            const now = audioCtx.currentTime;
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain); gain.connect(audioCtx.destination);
+            
+            if (type === 'correct') {
+                osc.type = 'sine'; osc.frequency.setValueAtTime(800, now); osc.frequency.exponentialRampToValueAtTime(1200, now + 0.1);
+                gain.gain.setValueAtTime(0.3, now); osc.start(now); osc.stop(now + 0.15);
+            } else if (type === 'wrong') {
+                osc.type = 'sawtooth'; osc.frequency.setValueAtTime(150, now); osc.frequency.exponentialRampToValueAtTime(80, now + 0.3);
+                gain.gain.setValueAtTime(0.3, now); osc.start(now); osc.stop(now + 0.3);
+            } else if (type === 'draw') {
+                osc.type = 'square'; osc.frequency.setValueAtTime(400, now); osc.frequency.linearRampToValueAtTime(800, now + 0.5);
+                gain.gain.setValueAtTime(0.2, now); osc.start(now); osc.stop(now + 0.5);
+            } else if (type === 'synth') {
+                osc.type = 'sine'; osc.frequency.setValueAtTime(300, now); 
+                osc.frequency.linearRampToValueAtTime(600, now + 0.3);
+                osc.frequency.linearRampToValueAtTime(1200, now + 0.6);
+                gain.gain.setValueAtTime(0.4, now); osc.start(now); osc.stop(now + 0.7);
+            }
+        }
+// ==========================================
+// 📦 系統擴充：馬刺隊 25-26 賽季特訓卡包 (修正版)
+// ==========================================
+const cardPacks = {
+    "phase1": {
+        name: "🏀 馬刺隊 25-26 賽季特訓包",
+        cards: [
+            // --- SP 卡 (1張) ---
+            { id: "sp_logo", name: "【SP】聖安東尼奧馬刺隊徽", rarity: "SP", chance: 0.1, image: "images/spurs_logo.jpg", pblTask: "【實作挑戰】向老師口頭解釋『正邏輯』與『負邏輯』定義差異，即可解鎖！", unlockCode: "9999" },
+
+            // --- UR 卡 (特效/異色版 - 傳奇球星) ---
+            { id: "ur_wemby", name: "【UR】外星人・Wembanyama (動態特效版)", rarity: "UR", chance: 0.5, image: "images/ur_wemby.jpg" },
+            { id: "ur_duncan", name: "【UR】石佛・Tim Duncan (傳奇全圖版)", rarity: "UR", chance: 0.5, image: "images/ur_duncan.jpg" },
+            { id: "ur_parker", name: "【UR】法國小跑車・Tony Parker (閃卡特效版)", rarity: "UR", chance: 0.5, image: "images/ur_parker.jpg" },
+            { id: "ur_ginobili", name: "【UR】妖刀・Manu Ginobili (絕殺異色版)", rarity: "UR", chance: 0.5, image: "images/ur_manu.jpg" },
+
+            // --- SSR 卡 (一般版 - 全明星與頂級球星) ---
+            { id: "ssr_wemby", name: "【SSR】新世代巨塔・Victor Wembanyama", rarity: "SSR", chance: 1.6, image: "images/ssr_wemby.jpg" },
+            { id: "ssr_fox", name: "【SSR】閃電控衛・De'Aaron Fox", rarity: "SSR", chance: 1.6, image: "images/ssr_fox.jpg" },
+            { id: "ssr_vassell", name: "【SSR】得分箭頭・Devin Vassell", rarity: "SSR", chance: 1.6, image: "images/ssr_vassell.jpg" },
+            { id: "ssr_duncan", name: "【SSR】聖安東尼奧基石・Tim Duncan", rarity: "SSR", chance: 1.6, image: "images/ssr_duncan.jpg" },
+
+            // --- SR 卡 (核心輪替) ---
+            { id: "sr_castle", name: "【SR】潛力新秀・Stephon Castle", rarity: "SR", chance: 4.5, image: "images/sr_castle.jpg" },
+            { id: "sr_johnson", name: "【SR】野獸派・Keldon Johnson", rarity: "SR", chance: 4.5, image: "images/sr_kj.jpg" },
+            { id: "sr_sochan", name: "【SR】活力側翼・Jeremy Sochan", rarity: "SR", chance: 4.5, image: "images/sr_sochan.jpg" },
+            { id: "sr_barnes", name: "【SR】冠軍經驗・Harrison Barnes", rarity: "SR", chance: 4.5, image: "images/sr_barnes.jpg" },
+
+            // --- R 卡 (實力主要輪替) ---
+            { id: "r_jones", name: "【R】穩健指揮官・Tre Jones", rarity: "R", chance: 9.0, image: "images/r_jones.jpg" },
+            { id: "r_harper", name: "【R】極速控衛・Dylan Harper", rarity: "R", chance: 9.0, image: "images/r_harper.jpg" },
+            { id: "r_champagnie", name: "【R】外線槍手・Julian Champagnie", rarity: "R", chance: 9.0, image: "images/r_champagnie.jpg" },
+            { id: "r_collins", name: "【R】禁區硬漢・Zach Collins", rarity: "R", chance: 9.0, image: "images/r_collins.jpg" },
+
+            // --- N 卡 (板凳與雙向球員 - 合成素材) ---
+            { id: "n_bryant", name: "【N】機動前鋒・Carter Bryant", rarity: "N", chance: 9.5, image: "images/n_bryant.jpg", synthTarget: "sp_logo" },
+            { id: "n_olynyk", name: "【N】智慧長人・Kelly Olynyk", rarity: "N", chance: 9.5, image: "images/n_olynyk.jpg", synthTarget: "sp_logo" },
+            { id: "n_kornet", name: "【N】防守掩護・Luke Kornet", rarity: "N", chance: 9.5, image: "images/n_kornet.jpg", synthTarget: "sp_logo" },
+            { id: "n_wesley", name: "【N】潛力後衛・Blake Wesley", rarity: "N", chance: 9.5, image: "images/n_wesley.jpg", synthTarget: "sp_logo" },
+            { id: "n_ingram", name: "【N】全能前鋒・Harrison Ingram", rarity: "N", chance: 9.5, image: "images/n_ingram.jpg", synthTarget: "sp_logo" },
+
+            // 🤖 特殊成就獎勵卡 (不計入機率池)
+            { id: "p1_ai", name: "【AI】Gemini 戰術教練卡", rarity: "AI", chance: 0, image: "images/ai_coach.jpg" },
+            { id: "p1_god", name: "【頂級神人】馬刺王朝・傳奇認證", rarity: "GOD", chance: 0, image: "images/god_mode.jpg" }
+        ]
+    },
+            "phase2": {
+	name: "🗽 尼克隊 25-26 賽季特訓包",
+    cards: [
+        // --- SP 卡 (隊徽) ---
+        { id: "sp_knicks", name: "【SP】紐約尼克隊徽", rarity: "SP", chance: 0.1, image: "images2/knicks_logo.jpg", pblTask: "【實作挑戰】向老師解釋為什麼NAND閘、NOR閘被稱為萬用閘即可解鎖！", unlockCode: "8888" },
+
+        // --- UR 卡 (傳奇名將 + 當家球星) ---
+        { id: "ur_lin", name: "【UR】林來瘋・Jeremy Lin", rarity: "UR", chance: 0.5, image: "images2/ur_lin.jpg" },
+        { id: "ur_ewing", name: "【UR】紐約之王・Patrick Ewing", rarity: "UR", chance: 0.5, image: "images2/ur_ewing.jpg" },
+        { id: "ur_melo", name: "【UR】進攻萬花筒・Carmelo Anthony", rarity: "UR", chance: 0.5, image: "images2/ur_melo.jpg" },
+        { id: "ur_brunson", name: "【UR】紐約救世主・Jalen Brunson", rarity: "UR", chance: 0.5, image: "images2/ur_brunson.jpg" },
+
+        // --- SSR 卡 (全明星與先發主力) ---
+        { id: "ssr_towns", name: "【SSR】禁區高塔・Karl-Anthony Towns", rarity: "SSR", chance: 1.6, image: "images2/ssr_towns.jpg" },
+        { id: "ssr_bridges", name: "【SSR】鐵人側翼・Mikal Bridges", rarity: "SSR", chance: 1.6, image: "images2/ssr_bridges.jpg" },
+        { id: "ssr_anunoby", name: "【SSR】禁區守護神・OG Anunoby", rarity: "SSR", chance: 1.6, image: "images2/ssr_anunoby.jpg" },
+        { id: "ssr_hart", name: "【SSR】能量坦克・Josh Hart", rarity: "SSR", chance: 1.6, image: "images2/ssr_hart.jpg" },
+
+        // --- SR 卡 (核心輪替) ---
+        { id: "sr_clarkson", name: "【SR】板凳暴徒・Jordan Clarkson", rarity: "SR", chance: 4.5, image: "images2/sr_clarkson.jpg" },
+        { id: "sr_robinson", name: "【SR】空接特技師・Mitchell Robinson", rarity: "SR", chance: 4.5, image: "images2/sr_robinson.jpg" },
+        { id: "sr_alvarado", name: "【SR】搶斷神偷・Jose Alvarado", rarity: "SR", chance: 4.5, image: "images2/sr_alvarado.jpg" },
+        { id: "sr_mcbride", name: "【SR】防守工兵・Miles McBride", rarity: "SR", chance: 4.5, image: "images2/sr_mcbride.jpg" },
+
+        // --- R 卡 (主要輪替) ---
+        { id: "r_sochan", name: "【R】活力側翼・Jeremy Sochan", rarity: "R", chance: 9.0, image: "images2/r_sochan.jpg" },
+        { id: "r_kolek", name: "【R】冷靜大腦・Tyler Kolek", rarity: "R", chance: 9.0, image: "images2/r_kolek.jpg" },
+        { id: "r_shamet", name: "【R】冷箭神射・Landry Shamet", rarity: "R", chance: 9.0, image: "images2/r_shamet.jpg" },
+        { id: "r_hukporti", name: "【R】禁區硬漢・Ariel Hukporti", rarity: "R", chance: 9.0, image: "images2/r_hukporti.jpg" },
+
+        // --- N 卡 (板凳與雙向 - 合成素材) ---
+        { id: "n_dadiet", name: "【N】法式新星・Pacôme Dadiet", rarity: "N", chance: 9.5, image: "images2/n_dadiet.jpg", synthTarget: "sp_knicks" },
+        { id: "n_mccullar", name: "【N】全能多面手・Kevin McCullar Jr.", rarity: "N", chance: 9.5, image: "images2/n_mccullar.jpg", synthTarget: "sp_knicks" },
+        { id: "n_jemison", name: "【N】禁區苦力・Trey Jemison", rarity: "N", chance: 9.5, image: "images2/n_jemison.jpg", synthTarget: "sp_knicks" },
+        { id: "n_jones", name: "【N】強力前鋒・Dillon Jones", rarity: "N", chance: 9.5, image: "images2/n_jones.jpg", synthTarget: "sp_knicks" },
+        { id: "n_diawara", name: "【N】潛力鋒線・Mohamed Diawara", rarity: "N", chance: 9.5, image: "images2/n_diawara.jpg", synthTarget: "sp_knicks" },
+                    // 🤖 特殊成就獎勵卡 (不計入機率池)
+            { id: "p2_ai", name: "【AI】Gemini 戰術教練卡", rarity: "AI", chance: 0, image: "images2/ai_coach.jpg" },
+            { id: "p2_god", name: "【頂級神人】王者尼克・登頂加冕", rarity: "GOD", chance: 0, image: "images2/god_mode.jpg" }
+    ]
+}
+};
+const quizData = {
+    // === 進位制檢核題庫 (1-20) ===
+    "q1": {
+        tag: "檢核：2進制轉10進制",
+        text: "將 2 進制的 1101 轉換為 10 進制，結果為何？",
+        options: [
+            { text: "13", next: "q2", isCorrect: true },
+            { text: "11", next: "q1_help", log: "Q1錯：位元權重計算錯誤，1101應為8+4+0+1=13" },
+            { text: "12", next: "q1_help", log: "Q1錯：加權計算遺漏位元" },
+            { text: "14", next: "q1_help", log: "Q1錯：二進位轉換計算錯誤" }
+        ]
+    },
+    "q1_help": {
+        tag: "救援：權重計算",
+        text: "【提示】$1\\times 2^3 + 1\\times 2^2 + 0\\times 2^1 + 1\\times 2^0 = 8+4+0+1 = 13$。",
+        aiPrompt: "帶領學生確認各個位元的權重。",
+        aiUrl: "https://gemini.google.com/",
+        options: [
+            { text: "13", next: "q1", isCorrect: true },
+            { text: "其他", next: "q1_help", log: "救援失敗：2轉10" }
+        ]
+    },
+    "q2": {
+        tag: "檢核：16進制轉2進制",
+        text: "將 16 進制的 E 轉換為 2 進制為？",
+        options: [
+            { text: "1110", next: "q3", isCorrect: true },
+            { text: "1101", next: "q2_help", log: "Q2錯：1101對應到D，E應為1110" },
+            { text: "1011", next: "q2_help", log: "Q2錯：二進位對應碼錯誤" },
+            { text: "1111", next: "q2_help", log: "Q2錯：1111對應到F" }
+        ]
+    },
+    "q2_help": {
+        tag: "救援：16對應2輔助",
+        text: "【提示】E 代表 14。$8+4+2+0 = 14$。",
+        aiPrompt: "引導學生使用權重 $8,4,2,1$ 來湊出 14。",
+        aiUrl: "https://gemini.google.com/",
+        options: [
+            { text: "1110", next: "q2", isCorrect: true },
+            { text: "其他", next: "q2_help", log: "救援失敗：16轉2" }
+        ]
+    },
+    "q3": {
+        tag: "檢核：10轉16進制",
+        text: "將 10 進制的 20 轉換為 16 進制，正確的是？",
+        options: [
+            { text: "14", next: "q4", isCorrect: true },
+            { text: "20", next: "q3_help", log: "Q3錯：未執行轉換" },
+            { text: "1A", next: "q3_help", log: "Q3錯：1A=16+10=26" },
+            { text: "12", next: "q3_help", log: "Q3錯：轉換計算錯誤" }
+        ]
+    },
+    "q3_help": {
+        tag: "救援：10轉16技巧",
+        text: "【提示】$20 \\div 16 = 1$ 餘 4。結果為 14。",
+        aiPrompt: "教導除以 16 取餘數法。",
+        aiUrl: "https://gemini.google.com/",
+        options: [
+            { text: "14", next: "q3", isCorrect: true },
+            { text: "其他", next: "q3_help", log: "救援失敗：10轉16" }
+        ]
+    },
+    "q4": {
+        tag: "檢核：8進制轉2進制",
+        text: "將 8 進制的 3 轉換為 2 進制（3位元表示）？",
+        options: [
+            { text: "011", next: "q5", isCorrect: true },
+            { text: "001", next: "q4_help", log: "Q4錯：001代表1" },
+            { text: "100", next: "q4_help", log: "Q4錯：100代表4" },
+            { text: "110", next: "q4_help", log: "Q4錯：110代表6" }
+        ]
+    },
+    "q4_help": {
+        tag: "救援：8轉2技巧",
+        text: "【提示】8 進制每一位對應 3 位 2 進位。",
+        aiPrompt: "說明 8 進制與 2 進位的 1 對 3 關係。",
+        aiUrl: "https://gemini.google.com/",
+        options: [
+            { text: "011", next: "q4", isCorrect: true },
+            { text: "其他", next: "q4_help", log: "救援失敗：8轉2" }
+        ]
+    },
+    "q5": {
+        tag: "檢核：混和運算",
+        text: "請問 $10_{10} + 1_{16} =$ ？ (以 10 進制表示)",
+        options: [
+            { text: "11", next: "q6", isCorrect: true },
+            { text: "12", next: "q5_help", log: "Q5錯：16進制1應為10進制1，10+1=11應為錯誤，應為10+1=11(10進制)算錯，實際上16進制1=1，10+1=11。更正：若題為10(10進位)+1(16進位)=11(10進位)，這裡題目為10+1，故應為11。我修正選項邏輯。" },
+            { text: "20", next: "q5_help", log: "Q5錯：邏輯運算錯誤" },
+            { text: "16", next: "q5_help", log: "Q5錯：位值計算錯誤" }
+        ]
+    },
+    "q5_help": {
+        tag: "救援：統一進位制",
+        text: "【提示】運算前先將所有數字換算為 10 進制：$10 + 1 = 11$。",
+        aiPrompt: "強調運算前統一進位制的原則。",
+        aiUrl: "https://gemini.google.com/",
+        options: [
+            { text: "11", next: "q5", isCorrect: true },
+            { text: "其他", next: "q5_help", log: "救援失敗：統一進位制" }
+        ]
+    },
+    "q6": {
+        tag: "檢核：數值比較",
+        text: "下列何者最大？",
+        options: [
+            { text: "2 進制 1000", next: "q7", isCorrect: true },
+            { text: "8 進制 2", next: "q6_help", log: "Q6錯：8進制2等於10進制2，8進制2較小" },
+            { text: "16 進制 3", next: "q6_help", log: "Q6錯：16進制2等於10進制2" },
+            { text: "10 進制 5", next: "q6_help", log: "Q6錯：10進制5大於2" }
+        ]
+    },
+    "q6_help": {
+        tag: "救援：比較技巧",
+        text: "【提示】將所有數字換算為 10 進制：2 進制 1000=8，8 進制 2=2，16 進制 3=3，10 進制 5=5。",
+        aiPrompt: "帶領學生將選項全部換算為 10 進制進行比較。",
+        aiUrl: "https://gemini.google.com/",
+        options: [
+            { text: "2 進制 1000", next: "q6", isCorrect: true },
+            { text: "其他", next: "q6_help", log: "救援失敗：比較技巧" }
+        ]
+    },
+    "q7": {
+        tag: "檢核：16進制補數",
+        text: "16 進制的 F + 1 等於16進制多少？",
+        options: [
+            { text: "10", next: "q8", isCorrect: true },
+            { text: "G", next: "q7_help", log: "Q7錯：16進制符號只到F，滿F進位" },
+            { text: "1F", next: "q7_help", log: "Q7錯：進位觀念錯誤" },
+            { text: "0", next: "q7_help", log: "Q7錯：邏輯運算錯誤" }
+        ]
+    },
+    "q7_help": {
+        tag: "救援：16進制進位",
+        text: "【提示】F 是 16 進制的最後一位數字，加 1 就會變成 10。",
+        aiPrompt: "說明進位規則：滿基底就要進位。",
+        aiUrl: "https://gemini.google.com/",
+        options: [
+            { text: "10", next: "q7", isCorrect: true },
+            { text: "其他", next: "q7_help", log: "救援失敗：16進制進位" }
+        ]
+    },
+    "q8": {
+        tag: "檢核：2轉16進階",
+        text: "2 進制的 1 1111 轉為 16 進制為？",
+        options: [
+            { text: "1F", next: "q9", isCorrect: true },
+            { text: "F1", next: "q8_help", log: "Q8錯：分組需由右向左，1對應0001" },
+            { text: "1E", next: "q8_help", log: "Q8錯：1111對應F" },
+            { text: "15", next: "q8_help", log: "Q8錯：15需轉為F" }
+        ]
+    },
+    "q8_help": {
+        tag: "救援：分組技巧",
+        text: "【提示】分組：0001 | 1111。對應 1, F。",
+        aiPrompt: "提醒學生分組應從最右邊開始。",
+        aiUrl: "https://gemini.google.com/",
+        options: [
+            { text: "1F", next: "q8", isCorrect: true },
+            { text: "其他", next: "q8_help", log: "救援失敗：2轉16分組" }
+        ]
+    },
+    "q9": {
+        tag: "檢核：10轉2技巧",
+        text: "將 10 進制的 8 轉換為 2 進制為？",
+        options: [
+            { text: "1000", next: "q10", isCorrect: true },
+            { text: "0100", next: "q9_help", log: "Q9錯：4進制觀念誤用" },
+            { text: "1100", next: "q9_help", log: "Q9錯：轉換計算錯誤" },
+            { text: "0010", next: "q9_help", log: "Q9錯：位值權重錯誤" }
+        ]
+    },
+    "q9_help": {
+        tag: "救援：權重理解",
+        text: "【提示】$8 = 1 \\times 2^3 + 0 + 0 + 0 = 1000$。",
+        aiPrompt: "解釋權重法對應的二進位。",
+        aiUrl: "https://gemini.google.com/",
+        options: [
+            { text: "1000", next: "q9", isCorrect: true },
+            { text: "其他", next: "q9_help", log: "救援失敗：權重法" }
+        ]
+    },
+    "q10": {
+        tag: "檢核：8與16轉換",
+        text: "將 8 進制的 10 轉為 10 進制為何？",
+        options: [
+            { text: "8", next: "q11", isCorrect: true },
+            { text: "10", next: "q10_help", log: "Q10錯：8進制10=8*1+0" },
+            { text: "16", next: "q10_help", log: "Q10錯：進制觀念錯誤" },
+            { text: "1", next: "q10_help", log: "Q10錯：運算結果錯誤" }
+        ]
+    },
+    "q10_help": {
+        tag: "救援：中介轉換技巧",
+        text: "【提示】8 進制每一位代表 8 的次方，故 $1 \\times 8^1 + 0 \\times 8^0 = 8$。",
+        aiPrompt: "教導學生透過權重法轉換 8 進制。",
+        aiUrl: "https://gemini.google.com/",
+        options: [
+            { text: "8", next: "q10", isCorrect: true },
+            { text: "其他", next: "q10_help", log: "救援失敗：橋樑轉換法" }
+        ]
+    },
+    "q11": {
+        tag: "檢核：進位制擴展",
+        text: "2進制 101 0111 轉為 16 進制，分組正確為？",
+        options: [
+            { text: "0101 0111", next: "q12", isCorrect: true },
+            { text: "101 0111", next: "q11_help", log: "Q11錯：分組不足需補零" },
+            { text: "1010 1110", next: "q11_help", log: "Q11錯：數字分組錯誤" },
+            { text: "0001 0111", next: "q11_help", log: "Q11錯：位數處理錯誤" }
+        ]
+    },
+    "q11_help": {
+        tag: "救援：補零規則",
+        text: "【提示】從右向左分組，最左邊不足則補零。",
+        aiPrompt: "提醒補零規則：分組從右邊算起，左邊不足補 0。",
+        aiUrl: "https://gemini.google.com/",
+        options: [
+            { text: "0101 0111", next: "q11", isCorrect: true },
+            { text: "其他", next: "q11_help", log: "救援失敗：補零規則" }
+        ]
+    },
+    "q12": {
+        tag: "檢核：數值辨識",
+        text: "16 進制中的 C 對應 10 進制的多少？",
+        options: [
+            { text: "12", next: "q13", isCorrect: true },
+            { text: "11", next: "q12_help", log: "Q12錯：11是B" },
+            { text: "13", next: "q12_help", log: "Q12錯：13是D" },
+            { text: "14", next: "q12_help", log: "Q12錯：14是E" }
+        ]
+    },
+    "q12_help": {
+        tag: "救援：數值對應",
+        text: "【提示】A=10, B=11, C=12。",
+        aiPrompt: "請學生背誦 16 進制符號對應的 10 進制數值。",
+        aiUrl: "https://gemini.google.com/",
+        options: [
+            { text: "12", next: "q12", isCorrect: true },
+            { text: "其他", next: "q12_help", log: "救援失敗：數值對應" }
+        ]
+    },
+    "q13": {
+        tag: "檢核：進位制運算",
+        text: "請問 $7_{8} + 1_{8}$ 為八進制多少？",
+        options: [
+            { text: "10", next: "q14", isCorrect: true },
+            { text: "8", next: "q13_help", log: "Q13錯：8進制無8" },
+            { text: "11", next: "q13_help", log: "Q13錯：進位邏輯錯誤" },
+            { text: "7", next: "q13_help", log: "Q13錯：邏輯運算錯誤" }
+        ]
+    },
+    "q13_help": {
+        tag: "救援：進位觀念",
+        text: "【提示】滿基底 8 即進位，所以 $7+1=10_8$。",
+        aiPrompt: "解釋為何 8 進制下 $7+1$ 會進位為 10。",
+        aiUrl: "https://gemini.google.com/",
+        options: [
+            { text: "10", next: "q13", isCorrect: true },
+            { text: "其他", next: "q13_help", log: "救援失敗：進位觀念" }
+        ]
+    },
+    "q14": {
+        tag: "檢核：符號辨識",
+        text: "16 進制符號 D 代表 10 進制的多少？",
+        options: [
+            { text: "13", next: "q15", isCorrect: true },
+            { text: "12", next: "q14_help", log: "Q14錯：12是C" },
+            { text: "14", next: "q14_help", log: "Q14錯：14是E" },
+            { text: "15", next: "q14_help", log: "Q14錯：15是F" }
+        ]
+    },
+    "q14_help": {
+        tag: "救援：符號辨識輔助",
+        text: "【提示】$A=10, B=11, C=12, D=13$。",
+        aiPrompt: "引導學生練習符號與數值轉換。",
+        aiUrl: "https://gemini.google.com/",
+        options: [
+            { text: "13", next: "q14", isCorrect: true },
+            { text: "其他", next: "q14_help", log: "救援失敗：符號辨識" }
+        ]
+    },
+    "q15": {
+        tag: "檢核：10轉2練習",
+        text: "將 10 進制的 16 轉換為 2 進制為？",
+        options: [
+            { text: "10000", next: "q16", isCorrect: true },
+            { text: "1000", next: "q15_help", log: "Q15錯：16是2的4次方，應為5位數" },
+            { text: "1111", next: "q15_help", log: "Q15錯：1111是15" },
+            { text: "0100", next: "q15_help", log: "Q15錯：邏輯轉換錯誤" }
+        ]
+    },
+    "q15_help": {
+        tag: "救援：權重理解輔助",
+        text: "【提示】$16 = 2^4 = 10000$。",
+        aiPrompt: "說明 2 的次方數在 2 進制中的表示法。",
+        aiUrl: "https://gemini.google.com/",
+        options: [
+            { text: "10000", next: "q15", isCorrect: true },
+            { text: "其他", next: "q15_help", log: "救援失敗：10轉2次方" }
+        ]
+    },
+    "q16": {
+        tag: "檢核：進位制擴展",
+        text: "2 進制的 101010 轉為 8 進制為？",
+        options: [
+            { text: "52", next: "q17", isCorrect: true },
+            { text: "42", next: "q16_help", log: "Q16錯：分組運算錯誤" },
+            { text: "62", next: "q16_help", log: "Q16錯：分組運算錯誤" },
+            { text: "51", next: "q16_help", log: "Q16錯：分組運算錯誤" }
+        ]
+    },
+    "q16_help": {
+        tag: "救援：2轉8輔助",
+        text: "【提示】分組：101 | 010。對應 5, 2。",
+        aiPrompt: "協助學生練習 3 位一組的 2 轉 8 進制。",
+        aiUrl: "https://gemini.google.com/",
+        options: [
+            { text: "52", next: "q16", isCorrect: true },
+            { text: "其他", next: "q16_help", log: "救援失敗：2轉8進階" }
+        ]
+    },
+    "q17": {
+        tag: "檢核：數值辨識",
+        text: "F 轉為 2 進制為何？",
+        options: [
+            { text: "1111", next: "q18", isCorrect: true },
+            { text: "1110", next: "q17_help", log: "Q17錯：1110是E" },
+            { text: "0111", next: "q17_help", log: "Q17錯：位元錯誤" },
+            { text: "1011", next: "q17_help", log: "Q17錯：位元錯誤" }
+        ]
+    },
+    "q17_help": {
+        tag: "救援：16對應2輔助",
+        text: "【提示】F 代表 15，二進制為 $8+4+2+1 = 1111$。",
+        aiPrompt: "解釋 F 與 1111 的對應關係。",
+        aiUrl: "https://gemini.google.com/",
+        options: [
+            { text: "1111", next: "q17", isCorrect: true },
+            { text: "其他", next: "q17_help", log: "救援失敗：16對應2" }
+        ]
+    },
+    "q18": {
+        tag: "檢核：16進制運算",
+        text: "請問 $B+1$ 在 16 進制為何？",
+        options: [
+            { text: "C", next: "q19", isCorrect: true },
+            { text: "12", next: "q18_help", log: "Q18錯：16進制B之後為C" },
+            { text: "B1", next: "q18_help", log: "Q18錯：邏輯運算錯誤" },
+            { text: "A", next: "q18_help", log: "Q18錯：計數錯誤" }
+        ]
+    },
+    "q18_help": {
+        tag: "救援：16進制運算輔助",
+        text: "【提示】A=10, B=11, C=12。故 $B+1=C$。",
+        aiPrompt: "練習 16 進制符號的連續計數。",
+        aiUrl: "https://gemini.google.com/",
+        options: [
+            { text: "C", next: "q18", isCorrect: true },
+            { text: "其他", next: "q18_help", log: "救援失敗：16進制運算" }
+        ]
+    },
+    "q19": {
+        tag: "檢核：綜合轉換",
+        text: "將 16 進制的 20 轉為 10 進制為？",
+        options: [
+            { text: "32", next: "q20", isCorrect: true },
+            { text: "20", next: "q19_help", log: "Q19錯：未進行轉換" },
+            { text: "30", next: "q19_help", log: "Q19錯：權重計算錯誤" },
+            { text: "22", next: "q19_help", log: "Q19錯：權重計算錯誤" }
+        ]
+    },
+    "q19_help": {
+        tag: "救援：權重轉換輔助",
+        text: "【提示】$2 \\times 16^1 + 0 \\times 16^0 = 32$。",
+        aiPrompt: "示範如何將 16 進制轉換為 10 進制。",
+        aiUrl: "https://gemini.google.com/",
+        options: [
+            { text: "32", next: "q19", isCorrect: true },
+            { text: "其他", next: "q19_help", log: "救援失敗：綜合轉換" }
+        ]
+    },
+    "q20": {
+        tag: "檢核：概念總結",
+        text: "若要將 16 進制轉 2 進制，最快的原則是？",
+        options: [
+            { text: "每一位對應 4 位二進位", next: "end", isCorrect: true },
+            { text: "直接轉為 10 進位", next: "q20_help", log: "Q20錯：這不是最快方式" },
+            { text: "每一位對應 3 位二進位", next: "q20_help", log: "Q20錯：這是8進制" },
+            { text: "除以 2 法", next: "q20_help", log: "Q20錯：這是10轉2" }
+        ]
+    },
+    "q20_help": {
+        tag: "救援：轉換原則輔助",
+        text: "【提示】16 進制基底為 $2^4$，故每一位對應 4 位 2 進位。",
+        aiPrompt: "說明為何 16 進制可直接分拆成 4 位 2 進位。",
+        aiUrl: "https://gemini.google.com/",
+        options: [
+            { text: "每一位對應 4 位二進位", next: "q20", isCorrect: true },
+            { text: "其他", next: "q20_help", log: "救援失敗：轉換原則" }
+        ]
+    }
+};
+// ==========================================
+        // 系統變數與遊戲邏輯
+        // ==========================================
+        let studentName = "";
+        let currentStep = "q1"; 
+        let hp = 30; 
+        let currentStreak = 0; 
+        let diagnosticLogs = [];
+        let sessionCards = []; 
+        let failedQuestions = []; 
+        let startTime = 0;           
+        let totalTime = 0;           
+        let rescueTriggered = 0;     
+        let rescueFails = 0;
+        let aiCopyCount = 0; // 記錄學生累計點選複製 AI 提詞的次數
+        let isTransitioning = false; 
+        
+        let currentPackId = "phase2"; 
+
+        document.addEventListener('DOMContentLoaded', () => {
+            initPackSelector();
+        });
+
+function initPackSelector() {
+    const selector = document.getElementById('pack-selector');
+    if (!selector) return;
+    selector.innerHTML = '';
+    
+    // 遍歷 cardPacks
+    Object.keys(cardPacks).forEach(key => {
+        // 增加一個判斷，確保卡包內有卡片
+        if (cardPacks[key] && cardPacks[key].cards) {
+            const div = document.createElement('div');
+            div.className = `pack-option ${key === currentPackId ? 'active' : ''}`;
+            div.innerText = cardPacks[key].name;
+            
+            // 綁定點擊事件
+            div.onclick = function() {
+                selectPack(key, this);
+            };
+            selector.appendChild(div);
+        }
+    });
+}
+
+        function selectPack(packId, el) {
+            currentPackId = packId;
+            document.querySelectorAll('.pack-option').forEach(opt => opt.classList.remove('active'));
+            el.classList.add('active');
+        }
+
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+        }
+
+        function saveToCollection(cardObj) {
+            let storageKey = "gachaCollection_" + studentName;
+            let pastCollection = JSON.parse(localStorage.getItem(storageKey)) || [];
+            let existingCard = pastCollection.find(c => c.id === cardObj.id);
+            if(existingCard) { existingCard.count += 1; } 
+            else { pastCollection.push({ ...cardObj, count: 1 }); }
+            localStorage.setItem(storageKey, JSON.stringify(pastCollection));
+        }
+
+        function openCollection() {
+            let inputName = document.getElementById('student-name').value.replace(/\s+/g, '');
+            if(!inputName) { alert("請先輸入姓名！"); return; }
+            
+            let storageKey = "gachaCollection_" + inputName;
+            let pastCollection = JSON.parse(localStorage.getItem(storageKey)) || [];
+            
+            let totalUnique = 0;
+            let totalCards = 0;
+            
+            let contentArea = document.getElementById('collection-content');
+            contentArea.innerHTML = "";
+            
+            Object.keys(cardPacks).forEach(packKey => {
+                const pack = cardPacks[packKey];
+                let packNormalPool = pack.cards.filter(c => c.chance > 0);
+                if (packNormalPool.length === 0) return;
+
+                totalCards += packNormalPool.length;
+                
+                let packUnique = packNormalPool.filter(mc => pastCollection.some(pc => pc.id === mc.id)).length;
+                totalUnique += packUnique;
+                
+                contentArea.innerHTML += `<div class="pack-section-title">${pack.name} (${packUnique}/${packNormalPool.length})</div>`;
+                
+                let gridHtml = `<div class="card-grid">`;
+                
+                pack.cards.forEach(masterCard => {
+                    let ownedCard = pastCollection.find(c => c.id === masterCard.id);
+                    //if (masterCard.chance === 0 && !ownedCard) return; 
+
+                    if (ownedCard) {
+                        let synthHtml = "";
+                        if (masterCard.synthTarget && ownedCard.count >= 5) {
+                            let btnClass = masterCard.rarity === "SR" ? "btn-synth btn-synth-sr" : "btn-synth";
+                            let btnIcon = masterCard.rarity === "SR" ? "🔥" : "✨";
+                            synthHtml = `<button class="${btnClass}" onclick="synthesizeCard('${masterCard.id}', '${masterCard.synthTarget}')">${btnIcon} 5合1 覺醒</button>`;
+                        }
+
+                        gridHtml += `
+                            <div class="mini-card">
+                                <div class="count">x${ownedCard.count}</div>
+                                <img src="${masterCard.image}" alt="${masterCard.name}">
+                                <div class="name">${masterCard.name}</div>
+                                ${synthHtml}
+                            </div>`;
+                    // === 找到 openCollection 裡的 else 區塊並修改成這樣 ===
+                    } else {
+                        // 🔒 修正：未解鎖的卡片不再直接「劇透」圖片，改為神祕剪影並顯示卡名
+                        gridHtml += `
+                            <div class="mini-card unowned">
+                                <div style="width: 100%; aspect-ratio: 1/1; background: #1a1a2e; border-radius: 5px; margin-bottom: 10px; display: flex; justify-content: center; align-items: center; color: #7f8c8d; font-size: 32px; font-weight: bold; border: 1px dashed #34495e;">?</div>
+                                <div class="name" style="color: #5d6d7e;">${masterCard.name}</div>
+                                <div style="font-size: 11px; color: #e74c3c; margin-top: 4px;">🔒 尚未獲得</div>
+                            </div>`;
+                    }
+                });
+                gridHtml += `</div>`;
+                contentArea.innerHTML += gridHtml;
+            });
+
+            document.getElementById('collection-title').innerText = `🏆 ${inputName} 的圖鑑 (${totalUnique} / ${totalCards})`;
+            document.getElementById('collection-modal').style.display = "flex";
+        }
+
+        function synthesizeCard(materialId, targetSpId) {
+            let inputName = document.getElementById('student-name').value.replace(/\s+/g, '');
+            let storageKey = "gachaCollection_" + inputName;
+            let pastCollection = JSON.parse(localStorage.getItem(storageKey)) || [];
+
+            let materialIndex = pastCollection.findIndex(c => c.id === materialId);
+            if (materialIndex > -1 && pastCollection[materialIndex].count >= 5) {
+                
+                let spMaster = null;
+                for (let packKey in cardPacks) {
+                    let found = cardPacks[packKey].cards.find(c => c.id === targetSpId);
+                    if (found) { spMaster = found; break; }
+                }
+                if (!spMaster) return;
+
+                if (spMaster.pblTask && spMaster.unlockCode) {
+                    let userInput = prompt(`🛑 傳說覺醒任務觸發！🛑\n\n${spMaster.pblTask}\n\n(任務完成後，請向老師索取通關密碼，並輸入於下方：)`);
+                    
+                    if (userInput === null) return; 
+                    else if (userInput.trim() !== spMaster.unlockCode) {
+                        alert("❌ 密碼錯誤！請確認你已經確實完成任務，並向老師取得正確密碼！");
+                        playSound('wrong');
+                        return; 
+                    }
+                }
+
+                pastCollection[materialIndex].count -= 5;
+                
+                let spCardIndex = pastCollection.findIndex(c => c.id === targetSpId);
+                if (spCardIndex > -1) { pastCollection[spCardIndex].count += 1; } 
+                else { pastCollection.push({ ...spMaster, count: 1 }); }
+                
+                localStorage.setItem(storageKey, JSON.stringify(pastCollection));
+                closeCollection();
+                showSynthesisAnimation(spMaster);
+            }
+        }
+
+        function showSynthesisAnimation(spCard) {
+            playSound('synth'); 
+            const overlay = document.getElementById('gacha-overlay');
+            const cardObj = document.getElementById('revealed-card');
+            
+            document.getElementById('pre-draw-btn').style.display = 'none';
+            document.getElementById('gacha-title').innerText = "✨ 碎片融合！傳說覺醒！ ✨";
+            
+            cardObj.className = "gacha-card card-SP"; 
+            document.getElementById('card-image').src = spCard.image; 
+            document.getElementById('card-image').style.display = 'block'; 
+            document.getElementById('card-name').innerText = spCard.name;
+            cardObj.style.display = 'flex';
+            
+            const postBtn = document.getElementById('post-draw-btn');
+            postBtn.innerText = "收下隱藏神卡";
+            postBtn.style.display = 'block';
+            postBtn.onclick = function() {
+                cardObj.style.transform = "scale(0)"; 
+                setTimeout(() => {
+                    overlay.style.display = "none";
+                    postBtn.innerText = "收下神卡並繼續";
+                    postBtn.onclick = closeGacha; 
+                    openCollection(); 
+                }, 300);
+            };
+            overlay.style.display = "flex";
+            setTimeout(() => { cardObj.style.transform = "scale(1)"; }, 100);
+        }
+
+        function closeCollection() { document.getElementById('collection-modal').style.display = "none"; }
+
+        function startGame() {
+            studentName = document.getElementById('student-name').value.replace(/\s+/g, '');
+            if (!studentName) { alert("請先輸入姓名喔！"); return; }
+            startTime = Date.now();
+            initAudio(); 
+            document.getElementById('student-setup').style.display = 'none';
+            document.getElementById('game-area').style.display = 'block';
+            updateStatus();
+            renderQuestion();
+        }
+
+        function renderQuestion() {
+            isTransitioning = false; 
+           // 💡 強制結束檢查：不管當前節點名稱為何，只要查不到資料就跳出
+    if (currentStep === "end" || !quizData[currentStep]) {
+        finishGame();
+        return;
+    }
+
+    const q = quizData[currentStep];
+            
+            if(!q) { alert("題目載入錯誤！請檢查 quizData 設定。"); return; }
+
+            document.getElementById('q-tag').innerText = q.tag;
+            document.getElementById('q-text').innerHTML = q.text;
+
+            if (q.tag.includes("救援") || q.tag.includes("提示")) {
+                document.getElementById('q-tag').style.background = "#8e44ad"; 
+                document.body.classList.add('rescue-mode'); 
+            } else {
+                document.body.classList.remove('rescue-mode'); 
+                if (q.tag.includes("流行") || q.tag.includes("放鬆") || q.tag.includes("時間") || q.tag.includes("娛樂") || q.tag.includes("日劇") || q.tag.includes("校園")) {
+                    document.getElementById('q-tag').style.background = "#27ae60"; 
+                } else {
+                    document.getElementById('q-tag').style.background = "#e74c3c"; 
+                }
+            }
+
+            // === 🚨 修正後的 AI 提示箱與一鍵跳轉區塊 ===
+            const oldAiBox = document.getElementById('ai-assistant-box');
+            if (oldAiBox) oldAiBox.remove();
+
+            if (q.aiPrompt) {
+                const aiBox = document.createElement('div');
+                aiBox.id = 'ai-assistant-box';
+                aiBox.style = "background: #16213e; padding: 15px; border-radius: 8px; margin-bottom: 20px; border: 1px dashed #3498db; text-align: left;";
+                
+                let safeUrl = q.aiUrl || "https://gemini.google.com/";
+                
+                // 修正點 1：移除了行內 onclick，改由下方的事件監聽器統一、乾淨地處理
+                aiBox.innerHTML = `
+                    <div style="color: #3498db; font-weight: bold; font-size: 14px; margin-bottom: 8px;">🤖 AI 戰術教練線上應援：</div>
+                    <div style="font-size: 13px; color: #cbd5e1; background: #1a1a2e; padding: 10px; border-radius: 5px; max-height: 80px; overflow-y: auto; margin-bottom: 10px; border: 1px solid #2c3e50;">${q.aiPrompt}</div>
+                    <button class="btn" style="background: #e67e22; box-shadow: 0 4px #b35d10; padding: 10px; font-size: 15px; margin-bottom: 0;" id="ai-action-btn">
+                        📋 複製戰術秘笈並向 Gemini 請教外掛
+                    </button>
+                    <div id="ai-timer-msg" style="color: #e74c3c; font-size: 13px; font-weight: bold; margin-top: 8px; text-align: center; display: none;"></div>
+                `;
+                document.getElementById('game-area').insertBefore(aiBox, document.getElementById('options-area'));
+
+// === 找到 renderQuestion 裡的事件監聽器，100% 完美替換為這段 ===
+                aiBox.querySelector('#ai-action-btn').addEventListener('click', function(e) {
+                    // 🛡️ 防禦連點：如果按鈕已經被點過，直接攔截，絕不允許二度觸發計時器！
+                    if (this.classList.contains('is-active')) return;
+                    this.classList.add('is-active');
+
+                    // 1. 執行複製提詞
+                    handleAiAssist(q.aiPrompt, safeUrl);
+
+                    // 2. 凍結作答選項，啟動 30 秒冷卻
+                    const optionsArea = document.getElementById('options-area');
+                    const originalButtons = optionsArea.querySelectorAll('button');
+                    originalButtons.forEach(b => b.disabled = true);
+                    
+                    this.disabled = true; // 鎖死 AI 按鈕
+                    this.style.background = "#7f8c8d";
+                    this.style.boxShadow = "none";
+
+                    let timeLeft = 30;
+                    const timerMsg = document.getElementById('ai-timer-msg');
+                    timerMsg.style.display = "block";
+
+                    const countdown = setInterval(() => {
+                        timerMsg.innerText = `🚨 AI 教練正在傳授破解戰術... 請研讀上方提示，${timeLeft} 秒後解鎖作答按鈕！`;
+                        timeLeft--;
+
+                        if (timeLeft < 0) {
+                            clearInterval(countdown);
+                            timerMsg.style.color = "#2ecc71";
+                            timerMsg.innerText = "✅ 戰術解讀完成！作答通道已解鎖！";
+                            originalButtons.forEach(b => b.disabled = false); // 解鎖作答
+                            
+                            // 💡 終極修正：在此處（解鎖的瞬間）才無條件幫學生的有效次數實質「穩穩加上 1 次」！
+                            // 這樣就算學生連續點擊或用了護盾，次數也絕對 100% 跟畫面的倒數對齊，再也不會遺漏！
+                            aiCopyCount++; 
+                        }
+                    }, 1000);
+                });
+            } else {
+                window.aiTimerQualified = false;
+            }
+
+            const optionsArea = document.getElementById('options-area');
+            optionsArea.innerHTML = ""; 
+
+            let shuffledOptions = [...q.options];
+            shuffleArray(shuffledOptions);
+            const labels = ["A", "B", "C", "D"];
+
+            shuffledOptions.forEach((opt, index) => {
+                const btn = document.createElement('button');
+                btn.className = 'btn';
+                let cleanText = opt.text.replace(/^[A-D]\.\s*/, "");
+                btn.innerHTML = `${labels[index]}. ${cleanText}`;
+                btn.onclick = () => handleAnswer(opt);
+                optionsArea.appendChild(btn);
+            });
+
+            if (window.MathJax) {
+                MathJax.typesetPromise([document.getElementById('game-area')]).catch((err) => console.log(err.message));
+            }
+        }
+
+        function handleAnswer(selectedOption) {
+            if (isTransitioning) return; 
+            isTransitioning = true; 
+            let isRescueQuestion = currentStep.includes("_help"); 
+
+// === 找到 handleAnswer 內的答錯 (if) 分支，修改成這樣 ===
+        if (!selectedOption.isCorrect) {
+            playSound('wrong'); 
+            
+            // 🛡️ 擴充機制：檢查學生圖鑑內是否有【AI 戰術教練卡】可以充當護盾抵扣血
+            let storageKey = "gachaCollection_" + studentName;
+            let pastCollection = JSON.parse(localStorage.getItem(storageKey)) || [];
+            // 指向我們設定的 AI 卡 ID (p2_ai)
+            let aiShieldIndex = pastCollection.findIndex(c => c.id === "p2_ai" && c.count > 0);
+
+            if (aiShieldIndex > -1) {
+                // 扣除一張教練卡，並觸發護盾特效
+                pastCollection[aiShieldIndex].count--;
+                localStorage.setItem(storageKey, JSON.stringify(pastCollection));
+                alert("🛡️ 戰術護盾觸發！消耗 1 張【AI 戰術教練卡】，本次答錯免扣血（HP 保留）！");
+                
+                // 重新渲染畫面的背包庫存顯示
+                let totalOwned = pastCollection.reduce((sum, c) => sum + c.count, 0);
+                document.getElementById('inventory-display').innerText = `🎒 本局卡簿: ${totalOwned} 張`;
+            } else {
+                // 沒有護盾卡，正常扣血
+                hp--; 
+                if(hp < 0) hp = 0; 
+            }
+
+            currentStreak = 0; 
+            updateStatus();
+            if (selectedOption.log) diagnosticLogs.push(selectedOption.log);
+            
+            if (!failedQuestions.includes(currentStep)) {
+                failedQuestions.push(currentStep);
+            }
+
+            if (!isRescueQuestion) { rescueTriggered++; } 
+            else { rescueFails++; }
+
+            currentStep = selectedOption.next;
+            renderQuestion();
+        }
+// === 確保你的 handleAnswer 答對分支是長這樣（還原成最乾淨的換題） ===
+        else {
+            playSound('correct'); 
+            showCorrectSplash();  
+            
+            if (!isRescueQuestion && !failedQuestions.includes(currentStep)) {
+                currentStreak++;
+            }
+
+            // 在 handleAnswer 的 else (答對) 分支內
+setTimeout(() => {
+    let nextStep = selectedOption.next;
+    
+    if (currentStreak >= 2) {
+        currentStreak = 0;
+        currentStep = nextStep; // 這行更新 currentStep
+        prepareGacha(); 
+    } else {
+        currentStep = nextStep; // 這行更新 currentStep
+        // 💡 關鍵：更新後馬上檢查一次
+        if (currentStep === "end") {
+            finishGame();
+        } else {
+            renderQuestion();
+        }
+    }
+    updateStatus();
+}, 800);
+        }
+        }
+
+        function showCorrectSplash() {
+            const splash = document.getElementById('correct-splash');
+            splash.classList.add('show');
+            setTimeout(() => { splash.classList.remove('show'); }, 600);
+        }
+
+        function updateStatus() {
+            let hpText = hp > 10 ? `❤️ x ${hp}` : "❤️".repeat(hp);
+            document.getElementById('hearts').innerText = hpText;
+            document.getElementById('streak-display').innerText = `🔥 連擊: ${currentStreak} / 2`;
+        }
+
+        function prepareGacha() {
+            const overlay = document.getElementById('gacha-overlay');
+            document.getElementById('pre-draw-btn').style.display = 'block';
+            document.getElementById('revealed-card').style.display = 'none';
+            document.getElementById('post-draw-btn').style.display = 'none';
+            overlay.style.display = "flex";
+        }
+
+        function executeDraw() {
+            playSound('draw'); 
+            document.getElementById('pre-draw-btn').style.display = 'none';
+            document.getElementById('gacha-title').innerText = "🎉 戰利品揭曉 🎉";
+            drawCard(); 
+        }
+
+        function drawCard() {
+            const cardObj = document.getElementById('revealed-card');
+            
+            if (!cardPacks[currentPackId] || cardPacks[currentPackId].cards.length === 0) {
+                alert("⚠️ 目前選擇的卡包尚未準備好，系統自動切換為第二階段！");
+                currentPackId = "phase2";
+            }
+            
+            let currentPool = cardPacks[currentPackId].cards;
+            let drawablePool = currentPool.filter(c => c.chance > 0);
+            
+            let randomNum = Math.random() * 100;
+            let currentLimit = 0;
+            let resultCard = drawablePool[drawablePool.length - 1]; 
+            for (let i = 0; i < drawablePool.length; i++) {
+                currentLimit += drawablePool[i].chance;
+                if (randomNum <= currentLimit) { resultCard = drawablePool[i]; break; }
+            }
+
+            cardObj.className = "gacha-card"; 
+            cardObj.classList.add(`card-${resultCard.rarity}`);
+            document.getElementById('card-image').src = resultCard.image; 
+            document.getElementById('card-image').style.display = 'block'; 
+            document.getElementById('card-name').innerText = resultCard.name;
+            
+            cardObj.style.display = 'flex';
+            document.getElementById('post-draw-btn').style.display = 'block';
+            setTimeout(() => { cardObj.style.transform = "scale(1)"; }, 100);
+
+            sessionCards.push(resultCard.name);
+            saveToCollection(resultCard); 
+            document.getElementById('inventory-display').innerText = `🎒 本局已抽: ${sessionCards.length} 張`;
+        }
+
+        function closeGacha() {
+            const overlay = document.getElementById('gacha-overlay');
+            const cardObj = document.getElementById('revealed-card');
+            cardObj.style.transform = "scale(0)"; 
+            setTimeout(() => {
+                overlay.style.display = "none";
+                renderQuestion(); 
+            }, 300);
+        }
+
+        function finishGame() {
+	// 💡 修正：在遊戲結束時，根據行為進行隱藏特規卡片發放
+            let storageKey = "gachaCollection_" + studentName;
+            let currentCollection = JSON.parse(localStorage.getItem(storageKey)) || [];
+
+// 在 finishGame 函數中找到發放 p2_god 的地方，改為這樣：
+// 💡 修改：移除 !hasGodCard 檢查，改為直接累加
+if (hp === 30 && failedQuestions.length === 0) {
+    // 全域搜尋所有卡包找到 p2_god
+    let godCardMaster = null;
+    for (let key in cardPacks) {
+        let found = cardPacks[key].cards.find(c => c.id === "p2_god");
+        if (found) { godCardMaster = found; break; }
+    }
+    
+    if (godCardMaster) {
+        let existingGodCard = currentCollection.find(c => c.id === "p2_god");
+        if (existingGodCard) {
+            existingGodCard.count += 1; // 如果已經有了，就 +1
+            alert("🏆 完美通關！【頂級神人】神卡數量已累積 +1！");
+        } else {
+            currentCollection.push({ ...godCardMaster, count: 1 }); // 第一次獲得
+            alert("🏆 恭喜你達成完美零誤差通關！【頂級神人】專屬榮譽卡已存入你的圖鑑！");
+        }
+    }
+}
+
+// 🤖 檢查有效 AI 沉澱求助次數是否達 3 次以上
+if (aiCopyCount >= 3) {
+    let aiCard = currentCollection.find(c => c.id === "p2_ai");
+    if (aiCard) {
+        aiCard.count++;
+    } else {
+        // 從目前的 pack 找尋 AI 卡範本
+        let aiCardMaster = cardPacks[currentPackId].cards.find(c => c.id === "p2_ai");
+        if (aiCardMaster) {
+            currentCollection.push({ ...aiCardMaster, count: 1 });
+        }
+    }
+    alert("🤖 戰術執行到位！你成功透過 AI 進行了 3 次深度沉澱，獲得【AI】Gemini 戰術教練卡！");
+}
+
+// 關鍵：這行一定要在 alert 之後執行，確保資料已更新
+localStorage.setItem(storageKey, JSON.stringify(currentCollection));
+            document.getElementById('game-area').style.display = 'none';
+            document.getElementById('result-area').style.display = 'block';
+
+            totalTime = Math.round((Date.now() - startTime) / 1000);
+
+            let reportArea = document.getElementById('log-report');
+            let logText = diagnosticLogs.length === 0 ? "🌟 完美通關，基礎極度扎實！" : "⚠️ 盲點診斷 (請老師留意)：\n" + diagnosticLogs.join("\n");
+            
+            // 報告文字區顯示求助 AI 的次數
+            let finalScoreText = `血量剩餘：${hp}\n🕒 耗時：${totalTime} 秒\n🤖 求助 AI 次數：${aiCopyCount} 次\n🏀 本局共獲得 ${sessionCards.length} 張卡片\n\n`;
+            reportArea.innerText = finalScoreText + logText;
+
+            let itemsText = sessionCards.length > 0 ? sessionCards.join(",") : "無";
+
+            // 🚨 修正：完美對接原版 GAS 的 doPost 欄位數量(9個參數)與順序
+            sendDataToSheet(
+                studentName, 
+                hp, 
+                totalTime, 
+                rescueTriggered, 
+                rescueFails, 
+                diagnosticLogs.length, 
+                `[AI求助:${aiCopyCount}次] | ` + diagnosticLogs.join(" | "), // 💡 聰明做法：把次數塞在錯誤詳細裡，不佔用獨立欄位
+                itemsText
+	, "數位邏輯_第3章_全_布林代數"
+            );
+        }
+        
+        const scriptURL = 'https://script.google.com/macros/s/AKfycbwWI4kB2vJSKNgsxHcOo4V-JAUelsk5zT3jolOJguY2tW1RBhsaNwaj5nMHFvZIykmPVQ/exec';
+        
+        // 🚨 修正：精準還原成你原版 GAS 的 9 個參數定義，第 10 個由內部附加發送
+// 💡 在 finishGame() 呼叫 sendDataToSheet 時，加入您的單元名稱
+// 例如：sendDataToSheet(..., "數位邏輯_第1章"); 
+
+function sendDataToSheet(name, hp, time, rescueT, rescueF, errorCount, errorDetails, cards, unitName) {
+    if(!scriptURL) return;
+    let formData = new URLSearchParams();
+    formData.append('name', name);
+    formData.append('hp', hp);
+    formData.append('time', time);
+    formData.append('rescueTriggered', rescueT);
+    formData.append('rescueFails', rescueF); 
+    formData.append('errorCount', errorCount);
+    formData.append('errorDetails', errorDetails);
+    formData.append('cards', cards);
+    formData.append('unitName', unitName); // 💡 新增這一行
+    
+    let storageKey = "gachaCollection_" + name;
+    let fullCollection = localStorage.getItem(storageKey) || "[]";
+    formData.append('fullCollection', fullCollection);
+    
+    fetch(scriptURL, { method: 'POST', body: formData }).catch(e=>console.log(e));
+}
+        async function syncCloudData() {
+            let inputName = document.getElementById('student-name').value.replace(/\s+/g, '');
+            if(!inputName) { alert("⚠️ 請先輸入您的姓名，才能尋找雲端存檔喔！"); return; }
+            if(!scriptURL) { alert("⚠️ 尚未設定 Google Sheet 網址，無法同步！"); return; }
+
+            let syncBtn = document.getElementById('btn-sync');
+            let originalText = syncBtn.innerText;
+            syncBtn.innerText = "⏳ 雲端同步中，請稍候...";
+            syncBtn.disabled = true;
+
+            try {
+                let fetchUrl = scriptURL + "?name=" + encodeURIComponent(inputName) + "&t=" + new Date().getTime();
+                let response = await fetch(fetchUrl, { method: "GET" });
+                let result = await response.json();
+
+                if(result.status === "success") {
+                    let cloudDataRaw = result.data;
+                    let cloudData = [];
+                    if (typeof cloudDataRaw === 'string') {
+                        cloudData = JSON.parse(cloudDataRaw);
+                    } else {
+                        cloudData = cloudDataRaw;
+                    }
+                    
+                    let storageKey = "gachaCollection_" + inputName;
+                    let localData = JSON.parse(localStorage.getItem(storageKey)) || [];
+
+                    cloudData.forEach(cloudCard => {
+                        let existing = localData.find(c => c.id === cloudCard.id);
+                        if (existing) {
+                            existing.count = Math.max(existing.count, cloudCard.count); 
+                        } else {
+                            localData.push(cloudCard);
+                        }
+                    });
+
+                    localStorage.setItem(storageKey, JSON.stringify(localData));
+                    alert("✅ 雲端同步成功！已為您載入最新圖鑑進度！\n(系統已自動比對並保留您的最高進度)");
+                } else {
+                    alert("🆕 找不到您的雲端存檔。\n如果您是第一次玩，這是正常的，系統將為您建立全新圖鑑！");
+                }
+            } catch(e) {
+                alert("❌ 同步失敗，請檢查網路連線或稍後再試。");
+                console.error(e);
+            } finally {
+                syncBtn.innerText = originalText;
+                syncBtn.disabled = false;
+            }
+        }
+
+// === 修正後最底下的 handleAiAssist 函式 (100% 不重複加分且不破壞生命週期) ===
+        function handleAiAssist(promptText, targetUrl) {
+            // 💡 修正點：直接接收純文字，徹底根除 Base64 解碼崩潰漏洞
+            alert("📋 AI 提詞複製成功！\n接下來會自動開啟 Gemini，請直接在對話框「貼上 (Ctrl+V)」送出即可！");
+            
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(promptText).then(() => {
+                    window.open(targetUrl, '_blank');
+                }).catch(err => {
+                    window.open(targetUrl, '_blank');
+                });
+            } else {
+                window.open(targetUrl, '_blank');
+            }
+        }
+    </script>
+</body>
+</html>
