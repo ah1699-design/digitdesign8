@@ -251,47 +251,47 @@
 // ==========================================
 const cardPacks = {
     "phase1": {
-        name: "🏀 馬刺隊 25-26 賽季特訓包",
-        cards: [
-            // --- SP 卡 (1張) ---
-            { id: "sp_logo", name: "【SP】聖安東尼奧馬刺隊徽", rarity: "SP", chance: 0.1, image: "images/spurs_logo.jpg", pblTask: "【實作挑戰】向老師口頭解釋『正邏輯』與『負邏輯』定義差異，即可解鎖！", unlockCode: "9999" },
+    name: "🏀 馬刺隊 25-26 賽季特訓包",
+    cards: [
+        // --- SP 卡 (0.1) ---
+        { id: "sp_logo", name: "【SP】聖安東尼奧馬刺隊徽", rarity: "SP", chance: 0.1, image: "images/spurs_logo.jpg", pblTask: "【實作挑戰】向老師口頭解釋『正邏輯』與『負邏輯』定義差異，即可解鎖！", unlockCode: "9999" },
 
-            // --- UR 卡 (特效/異色版 - 傳奇球星) ---
-            { id: "ur_wemby", name: "【UR】外星人・Wembanyama (動態特效版)", rarity: "UR", chance: 0.5, image: "images/ur_wemby.jpg" },
-            { id: "ur_duncan", name: "【UR】石佛・Tim Duncan (傳奇全圖版)", rarity: "UR", chance: 0.5, image: "images/ur_duncan.jpg" },
-            { id: "ur_parker", name: "【UR】法國小跑車・Tony Parker (閃卡特效版)", rarity: "UR", chance: 0.5, image: "images/ur_parker.jpg" },
-            { id: "ur_ginobili", name: "【UR】妖刀・Manu Ginobili (絕殺異色版)", rarity: "UR", chance: 0.5, image: "images/ur_manu.jpg" },
+        // --- UR 卡 (0.5 * 4 = 2.0) ---
+        { id: "ur_wemby", name: "【UR】外星人・Wembanyama (動態特效版)", rarity: "UR", chance: 0.5, image: "images/ur_wemby.jpg" },
+        { id: "ur_duncan", name: "【UR】石佛・Tim Duncan (傳奇全圖版)", rarity: "UR", chance: 0.5, image: "images/ur_duncan.jpg" },
+        { id: "ur_parker", name: "【UR】法國小跑車・Tony Parker (閃卡特效版)", rarity: "UR", chance: 0.5, image: "images/ur_parker.jpg" },
+        { id: "ur_ginobili", name: "【UR】妖刀・Manu Ginobili (絕殺異色版)", rarity: "UR", chance: 0.5, image: "images/ur_manu.jpg" },
 
-            // --- SSR 卡 (一般版 - 全明星與頂級球星) ---
-            { id: "ssr_wemby", name: "【SSR】新世代巨塔・Victor Wembanyama", rarity: "SSR", chance: 1.6, image: "images/ssr_wemby.jpg" },
-            { id: "ssr_fox", name: "【SSR】閃電控衛・De'Aaron Fox", rarity: "SSR", chance: 1.6, image: "images/ssr_fox.jpg" },
-            { id: "ssr_vassell", name: "【SSR】得分箭頭・Devin Vassell", rarity: "SSR", chance: 1.6, image: "images/ssr_vassell.jpg" },
-            { id: "ssr_duncan", name: "【SSR】聖安東尼奧基石・Tim Duncan", rarity: "SSR", chance: 1.6, image: "images/ssr_duncan.jpg" },
+        // --- SSR 卡 (1.6 * 4 = 6.4) ---
+        { id: "ssr_wemby", name: "【SSR】新世代巨塔・Victor Wembanyama", rarity: "SSR", chance: 1.6, image: "images/ssr_wemby.jpg" },
+        { id: "ssr_fox", name: "【SSR】閃電控衛・De'Aaron Fox", rarity: "SSR", chance: 1.6, image: "images/ssr_fox.jpg" },
+        { id: "ssr_vassell", name: "【SSR】得分箭頭・Devin Vassell", rarity: "SSR", chance: 1.6, image: "images/ssr_vassell.jpg" },
+        { id: "ssr_duncan", name: "【SSR】聖安東尼奧基石・Tim Duncan", rarity: "SSR", chance: 1.6, image: "images/ssr_duncan.jpg" },
 
-            // --- SR 卡 (核心輪替) ---
-            { id: "sr_castle", name: "【SR】潛力新秀・Stephon Castle", rarity: "SR", chance: 4.5, image: "images/sr_castle.jpg" },
-            { id: "sr_johnson", name: "【SR】野獸派・Keldon Johnson", rarity: "SR", chance: 4.5, image: "images/sr_kj.jpg" },
-            { id: "sr_sochan", name: "【SR】活力側翼・Jeremy Sochan", rarity: "SR", chance: 4.5, image: "images/sr_sochan.jpg" },
-            { id: "sr_barnes", name: "【SR】冠軍經驗・Harrison Barnes", rarity: "SR", chance: 4.5, image: "images/sr_barnes.jpg" },
+        // --- SR 卡 (4.5 * 4 = 18.0) ---
+        { id: "sr_castle", name: "【SR】潛力新秀・Stephon Castle", rarity: "SR", chance: 4.5, image: "images/sr_castle.jpg" },
+        { id: "sr_johnson", name: "【SR】野獸派・Keldon Johnson", rarity: "SR", chance: 4.5, image: "images/sr_kj.jpg" },
+        { id: "sr_sochan", name: "【SR】活力側翼・Jeremy Sochan", rarity: "SR", chance: 4.5, image: "images/sr_sochan.jpg" },
+        { id: "sr_barnes", name: "【SR】冠軍經驗・Harrison Barnes", rarity: "SR", chance: 4.5, image: "images/sr_barnes.jpg" },
 
-            // --- R 卡 (實力主要輪替) ---
-            { id: "r_jones", name: "【R】穩健指揮官・Tre Jones", rarity: "R", chance: 9.0, image: "images/r_jones.jpg" },
-            { id: "r_harper", name: "【R】極速控衛・Dylan Harper", rarity: "R", chance: 9.0, image: "images/r_harper.jpg" },
-            { id: "r_champagnie", name: "【R】外線槍手・Julian Champagnie", rarity: "R", chance: 9.0, image: "images/r_champagnie.jpg" },
-            { id: "r_collins", name: "【R】禁區硬漢・Zach Collins", rarity: "R", chance: 9.0, image: "images/r_collins.jpg" },
+        // --- R 卡 (8.375 * 4 = 33.5) ---
+        { id: "r_jones", name: "【R】穩健指揮官・Tre Jones", rarity: "R", chance: 8.375, image: "images/r_jones.jpg" },
+        { id: "r_harper", name: "【R】極速控衛・Dylan Harper", rarity: "R", chance: 8.375, image: "images/r_harper.jpg" },
+        { id: "r_champagnie", name: "【R】外線槍手・Julian Champagnie", rarity: "R", chance: 8.375, image: "images/r_champagnie.jpg" },
+        { id: "r_collins", name: "【R】禁區硬漢・Zach Collins", rarity: "R", chance: 8.375, image: "images/r_collins.jpg" },
 
-            // --- N 卡 (板凳與雙向球員 - 合成素材) ---
-            { id: "n_bryant", name: "【N】機動前鋒・Carter Bryant", rarity: "N", chance: 9.5, image: "images/n_bryant.jpg", synthTarget: "sp_logo" },
-            { id: "n_olynyk", name: "【N】智慧長人・Kelly Olynyk", rarity: "N", chance: 9.5, image: "images/n_olynyk.jpg", synthTarget: "sp_logo" },
-            { id: "n_kornet", name: "【N】防守掩護・Luke Kornet", rarity: "N", chance: 9.5, image: "images/n_kornet.jpg", synthTarget: "sp_logo" },
-            { id: "n_wesley", name: "【N】潛力後衛・Blake Wesley", rarity: "N", chance: 9.5, image: "images/n_wesley.jpg", synthTarget: "sp_logo" },
-            { id: "n_ingram", name: "【N】全能前鋒・Harrison Ingram", rarity: "N", chance: 9.5, image: "images/n_ingram.jpg", synthTarget: "sp_logo" },
+        // --- N 卡 (8.0 * 5 = 40.0) ---
+        { id: "n_bryant", name: "【N】機動前鋒・Carter Bryant", rarity: "N", chance: 8.0, image: "images/n_bryant.jpg", synthTarget: "sp_logo" },
+        { id: "n_olynyk", name: "【N】智慧長人・Kelly Olynyk", rarity: "N", chance: 8.0, image: "images/n_olynyk.jpg", synthTarget: "sp_logo" },
+        { id: "n_kornet", name: "【N】防守掩護・Luke Kornet", rarity: "N", chance: 8.0, image: "images/n_kornet.jpg", synthTarget: "sp_logo" },
+        { id: "n_wesley", name: "【N】潛力後衛・Blake Wesley", rarity: "N", chance: 8.0, image: "images/n_wesley.jpg", synthTarget: "sp_logo" },
+        { id: "n_ingram", name: "【N】全能前鋒・Harrison Ingram", rarity: "N", chance: 8.0, image: "images/n_ingram.jpg", synthTarget: "sp_logo" },
 
-            // 🤖 特殊成就獎勵卡 (不計入機率池)
-            { id: "p1_ai", name: "【AI】Gemini 戰術教練卡", rarity: "AI", chance: 0, image: "images/ai_coach.jpg" },
-            { id: "p1_god", name: "【頂級神人】馬刺王朝・傳奇認證", rarity: "GOD", chance: 0, image: "images/god_mode.jpg" }
-        ]
-    },
+        // 🤖 特殊成就獎勵卡 (不計入機率池)
+        { id: "p1_ai", name: "【AI】Gemini 戰術教練卡", rarity: "AI", chance: 0, image: "images/ai_coach.jpg" },
+        { id: "p1_god", name: "【頂級神人】馬刺王朝・傳奇認證", rarity: "GOD", chance: 0, image: "images/god_mode.jpg" }
+    ]
+},
             "phase2": {
 	name: "🗽 尼克隊 25-26 賽季特訓包",
     cards: [
@@ -1219,12 +1219,12 @@ if (hp === 30 && failedQuestions.length === 0) {
     // 全域搜尋所有卡包找到 p2_god
     let godCardMaster = null;
     for (let key in cardPacks) {
-        let found = cardPacks[key].cards.find(c => c.id === "p2_god");
+        let found = cardPacks[key].cards.find(c => c.id === "p1_god");
         if (found) { godCardMaster = found; break; }
     }
     
     if (godCardMaster) {
-        let existingGodCard = currentCollection.find(c => c.id === "p2_god");
+        let existingGodCard = currentCollection.find(c => c.id === "p1_god");
         if (existingGodCard) {
             existingGodCard.count += 1; // 如果已經有了，就 +1
             alert("🏆 完美通關！【頂級神人】神卡數量已累積 +1！");
@@ -1276,7 +1276,7 @@ localStorage.setItem(storageKey, JSON.stringify(currentCollection));
                 diagnosticLogs.length, 
                 `[AI求助:${aiCopyCount}次] | ` + diagnosticLogs.join(" | "), // 💡 聰明做法：把次數塞在錯誤詳細裡，不佔用獨立欄位
                 itemsText
-	, "數位邏輯_第3章_全_布林代數"
+	, "數位邏輯_進制2"
             );
         }
         
